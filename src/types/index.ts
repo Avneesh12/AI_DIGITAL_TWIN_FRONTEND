@@ -24,6 +24,14 @@ export interface LoginRequest {
   password: string;
 }
 
+// Re-export ChatHistoryItem as ChatMessage for use in chat components
+export interface ChatHistoryItem {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};
+
 // ─── Personality ─────────────────────────────────────────────────────────────
 
 export interface PersonalityProfile {

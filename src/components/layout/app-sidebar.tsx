@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import { useChatStore } from "@/store/chat-store";
 import { useRouter } from "next/navigation";
+import { Route } from "next";
 
 const NAV_ITEMS = [
   { href: "/dashboard/chat",        label: "Chat",        icon: MessageSquare, badge: null },
@@ -103,7 +104,7 @@ const handleLogout = async () => {
           return (
             <Link
               key={href}
-              href={href}
+              href={href as Route}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150",
                 "group relative"

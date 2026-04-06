@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Route } from "next";
 
 const schema = z.object({
   email:    z.string().email("Invalid email"),
@@ -36,7 +37,7 @@ export function LoginForm() {
       await login(data);
       // Set the cookie hint for middleware
       document.cookie = "adt_auth_hint=1; path=/; SameSite=Lax";
-      router.push(next);
+      router.push(next as Route);
       toast.success("Welcome back");
     } catch {
       // error is already set in store
@@ -133,7 +134,7 @@ export function LoginForm() {
               Password
             </label>
             <Link
-              href="/forgot-password"
+              href={"/forgot-password" as Route}
               className="text-xs transition-colors"
               style={{ color: "var(--text-tertiary)" }}
             >

@@ -6,13 +6,7 @@
 import apiClient from "./client";
 import type { ChatHistoryItem, ChatRequest, ChatResponse } from "@/types";
 
-// Re-export ChatHistoryItem as ChatMessage for use in chat components
-export type ChatHistoryItem = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  created_at: string;
-};
+
 
 export const chatApi = {
   sendMessage: async (data: ChatRequest): Promise<ChatResponse> => {
