@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  /* Typography */
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-mono: 'Geist Mono', 'Fira Code', monospace;
+
+  /* Light mode palette — warm stone */
+  --bg-primary:   #FAFAF9;
+  --bg-secondary: #F5F5F4;
+  --bg-tertiary:  #EEEDE9;
+  --bg-elevated:  #FFFFFF;
+
+  --text-primary:   #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary:  #A8A29E;
+  --text-inverse:   #FAFAF9;
+
+  --border-subtle:  rgba(28, 25, 23, 0.08);
+  --border-default: rgba(28, 25, 23, 0.12);
+  --border-strong:  rgba(28, 25, 23, 0.20);
+
+  /* Accent — amber gold */
+  --accent:         #F59E0B;
+  --accent-light:   #FEF3C7;
+  --accent-dark:    #D97706;
+  --accent-text:    #78350F;
+
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --topbar-height: 56px;
+
+  /* Transitions */
+  --transition-fast: 100ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+.dark {
+  --bg-primary:   #0C0A09;
+  --bg-secondary: #1C1917;
+  --bg-tertiary:  #292524;
+  --bg-elevated:  #1C1917;
+
+  --text-primary:   #FAFAF9;
+  --text-secondary: #A8A29E;
+  --text-tertiary:  #57534E;
+  --text-inverse:   #1C1917;
+
+  --border-subtle:  rgba(250, 250, 249, 0.06);
+  --border-default: rgba(250, 250, 249, 0.10);
+  --border-strong:  rgba(250, 250, 249, 0.16);
+
+  --accent-light:  rgba(245, 158, 11, 0.15);
+  --accent-text:   #FCD34D;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* ── Selection ───────────────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--accent-light);
+  color: var(--accent-text);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ── Focus ───────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-sans); font-weight: 500; }
+
+/* ── Shimmer Loading Skeleton ────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── Typing Indicator ────────────────────────────────────────────────────── */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  display: inline-block;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
+}
+
+/* ── Chat message prose ──────────────────────────────────────────────────── */
+.chat-prose {
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+.chat-prose p  { margin-bottom: 0.75rem; }
+.chat-prose p:last-child { margin-bottom: 0; }
+.chat-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--bg-tertiary);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.chat-prose pre {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.chat-prose pre code { background: transparent; padding: 0; }
+.chat-prose ul, .chat-prose ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+.chat-prose li { margin-bottom: 0.25rem; }
+.chat-prose strong { font-weight: 600; }
+
+/* ── Trait slider ────────────────────────────────────────────────────────── */
+input[type="range"].trait-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 9999px;
+  outline: none;
+}
+input[type="range"].trait-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+input[type="range"].trait-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
