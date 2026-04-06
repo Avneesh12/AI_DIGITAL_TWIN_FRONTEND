@@ -2,10 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  experimental: {
-    typedRoutes: true,
-  },
-  // Proxy API requests in development so the browser doesn't deal with CORS
+  output: "standalone",  // ← add this
+  typedRoutes: true,     // ← moved out of experimental
   async rewrites() {
     return process.env.NODE_ENV === "development"
       ? [
