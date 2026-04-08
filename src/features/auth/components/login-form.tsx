@@ -35,12 +35,11 @@ export function LoginForm() {
     clearError();
     try {
       await login(data);
-      // Set the cookie hint for middleware
       document.cookie = "adt_auth_hint=1; path=/; SameSite=Lax";
       router.push(next as Route);
       toast.success("Welcome back");
     } catch {
-      // error is already set in store
+      // error is set in store
     }
   };
 
@@ -49,7 +48,7 @@ export function LoginForm() {
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-8">
         <div
-          className="flex items-center justify-center w-8 h-8 rounded-lg"
+          className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
           style={{ background: "var(--accent)" }}
         >
           <Sparkles size={15} style={{ color: "var(--accent-text)" }} />
@@ -69,14 +68,13 @@ export function LoginForm() {
         Your twin is waiting.{" "}
         <Link
           href="/register"
-          className="underline underline-offset-2 transition-colors"
+          className="underline underline-offset-2 transition-colors hover:opacity-70"
           style={{ color: "var(--text-primary)" }}
         >
           Create account
         </Link>
       </p>
 
-      {/* Session expiry notice */}
       {reason === "session_expired" && (
         <div
           className="px-4 py-3 rounded-xl text-sm mb-5"
@@ -90,7 +88,6 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* Server error */}
       {error && (
         <div
           className="px-4 py-3 rounded-xl text-sm mb-5 animate-fade-in"
@@ -115,7 +112,7 @@ export function LoginForm() {
             type="email"
             autoComplete="email"
             placeholder="you@example.com"
-            className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
+            className="w-full px-3 py-3 rounded-xl text-sm outline-none transition-all"
             style={{
               background: "var(--bg-secondary)",
               border: `1px solid ${errors.email ? "rgba(220,38,38,0.4)" : "var(--border-default)"}`,
@@ -135,7 +132,7 @@ export function LoginForm() {
             </label>
             <Link
               href={"/forgot-password" as Route}
-              className="text-xs transition-colors"
+              className="text-xs transition-colors hover:opacity-70"
               style={{ color: "var(--text-tertiary)" }}
             >
               Forgot?
@@ -147,20 +144,22 @@ export function LoginForm() {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full px-3 py-2.5 pr-10 rounded-xl text-sm outline-none transition-all"
+              className="w-full px-3 py-3 pr-11 rounded-xl text-sm outline-none transition-all"
               style={{
                 background: "var(--bg-secondary)",
                 border: `1px solid ${errors.password ? "rgba(220,38,38,0.4)" : "var(--border-default)"}`,
                 color: "var(--text-primary)",
               }}
             />
+            {/* 44px tap target via p-3 */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
+              className="absolute right-0 top-0 h-full px-3 flex items-center"
               style={{ color: "var(--text-tertiary)" }}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
           {errors.password && (
@@ -168,12 +167,11 @@ export function LoginForm() {
           )}
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isLoading}
           className={cn(
-            "w-full py-2.5 rounded-xl text-sm font-semibold transition-all mt-2",
+            "w-full py-3 rounded-xl text-sm font-semibold transition-all mt-2",
             "disabled:opacity-60 disabled:cursor-not-allowed"
           )}
           style={{

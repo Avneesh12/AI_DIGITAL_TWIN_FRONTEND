@@ -13,29 +13,34 @@ import { useRouter } from "next/navigation";
 import { Route } from "next";
 
 const NAV_ITEMS = [
-  { href: "/dashboard/chat",        label: "Chat",        icon: MessageSquare, badge: null },
-  { href: "/dashboard/memory",      label: "Memory",      icon: Brain,         badge: null },
-  { href: "/dashboard/personality", label: "Personality", icon: Cpu,           badge: null },
-  { href: "/dashboard/decisions",   label: "Decisions",   icon: GitBranch,     badge: null },
-  { href: "/dashboard/history",     label: "History",     icon: Clock,         badge: null },
+  { href: "/dashboard/chat",        label: "Chat",        icon: MessageSquare },
+  { href: "/dashboard/memory",      label: "Memory",      icon: Brain         },
+  { href: "/dashboard/personality", label: "Personality", icon: Cpu           },
+  { href: "/dashboard/decisions",   label: "Decisions",   icon: GitBranch     },
+  { href: "/dashboard/history",     label: "History",     icon: Clock         },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  onNavigate?: () => void;
+}
+
+export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const { startNewSession } = useChatStore();
   const router = useRouter();
 
-const handleLogout = async () => {
-  await logout(); // 👈 await
-  document.cookie = "adt_auth_hint=; path=/; max-age=0"; // 👈 clear cookie
-  router.replace("/login");
-  router.refresh();
-};
+  const handleLogout = async () => {
+    await logout();
+    document.cookie = "adt_auth_hint=; path=/; max-age=0";
+    router.replace("/login");
+    router.refresh();
+  };
 
   const handleNewChat = () => {
     startNewSession();
     router.push("/dashboard/chat");
+    onNavigate?.();
   };
 
   const initials = user?.username
@@ -44,27 +49,25 @@ const handleLogout = async () => {
 
   return (
     <aside
-      className="flex flex-col h-full border-r"
+      className="flex flex-col h-full w-[240px] border-r flex-shrink-0"
       style={{
-        width: "var(--sidebar-width, 240px)",
         background: "var(--bg-elevated)",
         borderColor: "var(--border-subtle)",
-        flexShrink: 0,
       }}
     >
-      {/* ── Logo ─────────────────────────────────────────────────────────── */}
+      {/* Logo */}
       <div
-        className="flex items-center gap-2.5 px-5 h-14 border-b"
+        className="flex items-center gap-2.5 px-5 h-14 border-b flex-shrink-0"
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div
-          className="flex items-center justify-center w-7 h-7 rounded-md text-xs font-semibold"
+          className="flex items-center justify-center w-7 h-7 rounded-md text-xs font-semibold flex-shrink-0"
           style={{ background: "var(--accent)", color: "var(--accent-text)" }}
         >
           <Sparkles size={14} />
         </div>
-        <div>
-          <p className="text-sm font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold tracking-tight truncate" style={{ color: "var(--text-primary)" }}>
             Digital Twin
           </p>
           <p className="text-[10px] leading-none" style={{ color: "var(--text-tertiary)" }}>
@@ -73,8 +76,8 @@ const handleLogout = async () => {
         </div>
       </div>
 
-      {/* ── New Chat Button ───────────────────────────────────────────────── */}
-      <div className="px-3 pt-4 pb-2">
+      {/* New Chat Button */}
+      <div className="px-3 pt-4 pb-2 flex-shrink-0">
         <button
           onClick={handleNewChat}
           className="flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -91,7 +94,7 @@ const handleLogout = async () => {
         </button>
       </div>
 
-      {/* ── Navigation ───────────────────────────────────────────────────── */}
+      {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         <p
           className="px-2 py-1.5 text-[10px] font-medium uppercase tracking-widest"
@@ -99,28 +102,21 @@ const handleLogout = async () => {
         >
           Workspace
         </p>
-        {NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href as Route}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150",
-                "group relative"
+                "relative",
+                active
+                  ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
+                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
               )}
-              style={{
-                background: active ? "var(--bg-tertiary)" : "transparent",
-                color: active ? "var(--text-primary)" : "var(--text-secondary)",
-              }}
-              onMouseEnter={(e) => {
-                if (!active) (e.currentTarget as HTMLElement).style.background = "var(--bg-secondary)";
-              }}
-              onMouseLeave={(e) => {
-                if (!active) (e.currentTarget as HTMLElement).style.background = "transparent";
-              }}
             >
-              {/* Active indicator */}
               {active && (
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
@@ -132,14 +128,6 @@ const handleLogout = async () => {
                 style={{ color: active ? "var(--accent)" : "var(--text-tertiary)" }}
               />
               <span className="flex-1">{label}</span>
-              {badge && (
-                <span
-                  className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-                  style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}
-                >
-                  {badge}
-                </span>
-              )}
             </Link>
           );
         })}
@@ -153,11 +141,13 @@ const handleLogout = async () => {
           </p>
           <Link
             href="/dashboard/settings"
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{
-              color: pathname === "/dashboard/settings" ? "var(--text-primary)" : "var(--text-secondary)",
-              background: pathname === "/dashboard/settings" ? "var(--bg-tertiary)" : "transparent",
-            }}
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              pathname === "/dashboard/settings"
+                ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
+                : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
+            )}
           >
             <Settings size={15} style={{ color: "var(--text-tertiary)" }} />
             Settings
@@ -165,24 +155,22 @@ const handleLogout = async () => {
         </div>
       </nav>
 
-      {/* ── User Footer ──────────────────────────────────────────────────── */}
+      {/* User Footer */}
       <div
-        className="p-3 border-t"
+        className="p-3 border-t flex-shrink-0"
         style={{ borderColor: "var(--border-subtle)" }}
       >
-        <div
-          className="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors group"
-          style={{ color: "var(--text-primary)" }}
-        >
-          {/* Avatar */}
+        <div className="flex items-center gap-3 p-2 rounded-lg group">
           <div
-            className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold flex-shrink-0"
             style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.username || "User"}</p>
+            <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+              {user?.username || "User"}
+            </p>
             <p className="text-[11px] truncate" style={{ color: "var(--text-tertiary)" }}>
               {user?.email || ""}
             </p>

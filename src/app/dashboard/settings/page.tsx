@@ -7,21 +7,30 @@ import { memoryApi } from "@/lib/api/memory";
 import { toast } from "sonner";
 import {
   User, Shield, Palette, Bell, Download, Trash2,
-  Server, CheckCircle, AlertCircle, LogOut
+  Server, CheckCircle, AlertCircle, LogOut, ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Section = "profile" | "privacy" | "appearance" | "notifications" | "danger";
 
+const SIDE_NAV: { key: Section; label: string; icon: React.ElementType }[] = [
+  { key: "profile",       label: "Profile",       icon: User },
+  { key: "privacy",       label: "Privacy",       icon: Shield },
+  { key: "appearance",    label: "Appearance",    icon: Palette },
+  { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "danger",        label: "Danger zone",   icon: AlertCircle },
+];
+
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await logout(); // 👈 await
-    document.cookie = "adt_auth_hint=; path=/; max-age=0"; // 👈 clear cookie
+    await logout();
+    document.cookie = "adt_auth_hint=; path=/; max-age=0";
     router.replace("/login");
     router.refresh();
   };
@@ -41,16 +50,15 @@ export default function SettingsPage() {
     toast.info("Export feature coming soon");
   };
 
-  const sideNav: { key: Section; label: string; icon: React.ElementType }[] = [
-    { key: "profile",       label: "Profile",       icon: User },
-    { key: "privacy",       label: "Privacy",       icon: Shield },
-    { key: "appearance",    label: "Appearance",    icon: Palette },
-    { key: "notifications", label: "Notifications", icon: Bell },
-    { key: "danger",        label: "Danger zone",   icon: AlertCircle },
-  ];
+  const activeNav = SIDE_NAV.find((n) => n.key === activeSection);
+
+  const handleSelectSection = (key: Section) => {
+    setActiveSection(key);
+    setMobileMenuOpen(false);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="mb-6">
         <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Settings</h2>
         <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
@@ -58,11 +66,52 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="flex gap-8">
-        {/* Side nav */}
-        <aside className="w-44 shrink-0">
+      {/* Mobile: dropdown section picker */}
+      <div className="sm:hidden mb-4">
+        <button
+          onClick={() => setMobileMenuOpen((v) => !v)}
+          className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl border text-sm"
+          style={{
+            background: "var(--bg-elevated)",
+            borderColor: "var(--border-default)",
+            color: "var(--text-primary)",
+          }}
+        >
+          <span className="flex items-center gap-2">
+            {activeNav && <activeNav.icon size={14} style={{ color: "var(--accent)" }} />}
+            {activeNav?.label}
+          </span>
+          <ChevronRight size={14} className={cn("transition-transform", mobileMenuOpen && "rotate-90")} style={{ color: "var(--text-tertiary)" }} />
+        </button>
+        {mobileMenuOpen && (
+          <div
+            className="mt-1 rounded-xl border overflow-hidden"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-default)" }}
+          >
+            {SIDE_NAV.map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                onClick={() => handleSelectSection(key)}
+                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-left transition-colors border-b last:border-0"
+                style={{
+                  background: activeSection === key ? "var(--bg-tertiary)" : "transparent",
+                  color: activeSection === key ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderColor: "var(--border-subtle)",
+                }}
+              >
+                <Icon size={14} style={{ color: activeSection === key ? "var(--accent)" : "var(--text-tertiary)" }} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-6 sm:gap-8">
+        {/* Side nav — desktop only */}
+        <aside className="hidden sm:block w-44 flex-shrink-0">
           <nav className="space-y-0.5">
-            {sideNav.map(({ key, label, icon: Icon }) => {
+            {SIDE_NAV.map(({ key, label, icon: Icon }) => {
               const active = activeSection === key;
               return (
                 <button
@@ -86,7 +135,6 @@ export default function SettingsPage() {
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-4">
 
-          {/* ── Profile ────────────────────────────────────────────────── */}
           {activeSection === "profile" && (
             <SettingsCard title="Account Details">
               <Row label="Username" value={user?.username || "—"} />
@@ -97,10 +145,7 @@ export default function SettingsPage() {
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors"
-                  style={{
-                    borderColor: "var(--border-default)",
-                    color: "var(--text-secondary)",
-                  }}
+                  style={{ borderColor: "var(--border-default)", color: "var(--text-secondary)" }}
                 >
                   <LogOut size={13} />
                   Sign out
@@ -109,46 +154,44 @@ export default function SettingsPage() {
             </SettingsCard>
           )}
 
-          {/* ── Privacy ────────────────────────────────────────────────── */}
           {activeSection === "privacy" && (
             <>
               <SettingsCard title="Data & Memory">
                 <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
                   Your conversations, memories, and personality profile are stored privately and never shared with third parties.
                 </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleExport}
-                    className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors"
-                    style={{ borderColor: "var(--border-default)", color: "var(--text-secondary)" }}
-                  >
-                    <Download size={13} />
-                    Export my data
-                  </button>
-                </div>
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors"
+                  style={{ borderColor: "var(--border-default)", color: "var(--text-secondary)" }}
+                >
+                  <Download size={13} />
+                  Export my data
+                </button>
               </SettingsCard>
               <SettingsCard title="Backend Status">
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle size={14} style={{ color: "#16A34A" }} />
-                  <span style={{ color: "var(--text-secondary)" }}>
-                    Connected to{" "}
-                    <code
-                      className="text-xs px-1.5 py-0.5 rounded"
-                      style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-                    >
-                      {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}
-                    </code>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm mt-2">
-                  <CheckCircle size={14} style={{ color: "#16A34A" }} />
-                  <span style={{ color: "var(--text-secondary)" }}>Memory encryption: end-to-end</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={14} style={{ color: "#16A34A" }} />
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      Connected to{" "}
+                      <code
+                        className="text-xs px-1.5 py-0.5 rounded break-all"
+                        style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                      >
+                        {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}
+                      </code>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={14} style={{ color: "#16A34A" }} />
+                    <span style={{ color: "var(--text-secondary)" }}>Memory encryption: end-to-end</span>
+                  </div>
                 </div>
               </SettingsCard>
             </>
           )}
 
-          {/* ── Appearance ─────────────────────────────────────────────── */}
           {activeSection === "appearance" && (
             <SettingsCard title="Theme">
               <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
@@ -162,12 +205,8 @@ export default function SettingsPage() {
                 ].map(({ label, bg, text }) => (
                   <div
                     key={label}
-                    className="rounded-xl border p-3 text-center text-xs font-medium cursor-pointer transition-all"
-                    style={{
-                      background: bg,
-                      color: text,
-                      borderColor: "var(--border-default)",
-                    }}
+                    className="rounded-xl border p-3 text-center text-xs font-medium"
+                    style={{ background: bg, color: text, borderColor: "var(--border-default)" }}
                   >
                     {label}
                   </div>
@@ -176,7 +215,6 @@ export default function SettingsPage() {
             </SettingsCard>
           )}
 
-          {/* ── Notifications ──────────────────────────────────────────── */}
           {activeSection === "notifications" && (
             <SettingsCard title="Notifications">
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -185,19 +223,15 @@ export default function SettingsPage() {
             </SettingsCard>
           )}
 
-          {/* ── Danger Zone ────────────────────────────────────────────── */}
           {activeSection === "danger" && (
             <>
               <SettingsCard title="Clear All Memories" danger>
                 <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
-                  Permanently delete all stored memories. Your twin will start fresh.
-                  This cannot be undone.
+                  Permanently delete all stored memories. Your twin will start fresh. This cannot be undone.
                 </p>
                 <button
                   onClick={handleClearMemory}
-                  className={cn(
-                    "flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-all"
-                  )}
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-all"
                   style={{
                     borderColor: confirmDelete ? "rgba(220,38,38,0.5)" : "var(--border-default)",
                     background: confirmDelete ? "rgba(220,38,38,0.08)" : "transparent",
@@ -234,16 +268,12 @@ export default function SettingsPage() {
   );
 }
 
-function SettingsCard({
-  title, children, danger,
-}: {
-  title: string;
-  children: React.ReactNode;
-  danger?: boolean;
+function SettingsCard({ title, children, danger }: {
+  title: string; children: React.ReactNode; danger?: boolean;
 }) {
   return (
     <div
-      className="rounded-2xl border p-5"
+      className="rounded-2xl border p-4 sm:p-5"
       style={{
         background: "var(--bg-elevated)",
         borderColor: danger ? "rgba(220,38,38,0.15)" : "var(--border-subtle)",
@@ -260,17 +290,15 @@ function SettingsCard({
   );
 }
 
-function Row({
-  label, value, accent,
-}: { label: string; value: string; accent?: boolean }) {
+function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between py-2.5 border-b last:border-0"
+      className="flex items-center justify-between py-2.5 border-b last:border-0 gap-4"
       style={{ borderColor: "var(--border-subtle)" }}
     >
-      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{label}</span>
+      <span className="text-sm flex-shrink-0" style={{ color: "var(--text-secondary)" }}>{label}</span>
       <span
-        className="text-sm font-medium"
+        className="text-sm font-medium truncate text-right"
         style={{ color: accent ? "#16A34A" : "var(--text-primary)" }}
       >
         {value}

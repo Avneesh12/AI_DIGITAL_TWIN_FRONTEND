@@ -28,14 +28,12 @@ export function MemoryPanel() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Collect all unique tags
   const allTags = useMemo(() => {
     const tags = new Set<string>();
     memories.forEach((m) => m.topic_tags.forEach((t) => tags.add(t)));
     return [...tags].sort();
   }, [memories]);
 
-  // Filter memories by search query and active tag
   const filtered = useMemo(() => {
     return memories.filter((m) => {
       const matchesTag = !activeTag || m.topic_tags.includes(activeTag);
@@ -74,9 +72,9 @@ export function MemoryPanel() {
   if (loading) return <MemorySkeleton />;
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             Memory Bank
@@ -89,7 +87,7 @@ export function MemoryPanel() {
         {memories.length > 0 && (
           <button
             onClick={handleDeleteAll}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0"
             style={{
               background: confirmDeleteAll ? "rgba(220,38,38,0.1)" : "var(--bg-secondary)",
               color: confirmDeleteAll ? "#DC2626" : "var(--text-tertiary)",
@@ -97,20 +95,17 @@ export function MemoryPanel() {
             }}
           >
             <AlertTriangle size={12} />
-            {confirmDeleteAll ? "Confirm: clear all" : "Clear all"}
+            <span className="hidden sm:inline">{confirmDeleteAll ? "Confirm: clear all" : "Clear all"}</span>
+            <span className="sm:hidden">{confirmDeleteAll ? "Confirm" : "Clear"}</span>
           </button>
         )}
       </div>
 
-      {/* ── Search + Tag Filters ─────────────────────────────────────────── */}
+      {/* Search + Tag Filters */}
       <div className="space-y-3">
-        {/* Search input */}
         <div
           className="flex items-center gap-2 px-3 py-2.5 rounded-xl border"
-          style={{
-            background: "var(--bg-secondary)",
-            borderColor: "var(--border-default)",
-          }}
+          style={{ background: "var(--bg-secondary)", borderColor: "var(--border-default)" }}
         >
           <Search size={14} style={{ color: "var(--text-tertiary)" }} />
           <input
@@ -122,17 +117,12 @@ export function MemoryPanel() {
             style={{ color: "var(--text-primary)" }}
           />
           {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="text-xs px-1"
-              style={{ color: "var(--text-tertiary)" }}
-            >
+            <button onClick={() => setQuery("")} className="text-xs px-1" style={{ color: "var(--text-tertiary)" }}>
               ✕
             </button>
           )}
         </div>
 
-        {/* Tag filter chips */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             <button
@@ -164,7 +154,7 @@ export function MemoryPanel() {
         )}
       </div>
 
-      {/* ── Memory List ──────────────────────────────────────────────────── */}
+      {/* Memory List */}
       {filtered.length === 0 ? (
         <MemoryEmpty hasMemories={memories.length > 0} />
       ) : (
@@ -178,23 +168,18 @@ export function MemoryPanel() {
               <div
                 key={mem.point_id}
                 className={cn("rounded-2xl border p-4 transition-all group", isDeleting && "opacity-50")}
-                style={{
-                  background: "var(--bg-elevated)",
-                  borderColor: "var(--border-subtle)",
-                }}
+                style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 {/* Top row */}
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Importance badge */}
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <span
-                      className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
                       style={{ background: styles.bg, color: styles.color }}
                     >
                       {styles.label}
                     </span>
 
-                    {/* Emotional tone */}
                     {mem.emotional_tone && (
                       <span
                         className="text-[10px] capitalize px-2 py-0.5 rounded-full"
@@ -204,7 +189,6 @@ export function MemoryPanel() {
                       </span>
                     )}
 
-                    {/* Topic tags */}
                     {mem.topic_tags.map((tag) => (
                       <button
                         key={tag}
@@ -218,16 +202,17 @@ export function MemoryPanel() {
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="hidden sm:flex items-center gap-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
                       <Clock size={10} />
                       {formatDate(mem.created_at)}
                     </span>
                     <button
                       onClick={() => handleDelete(mem.point_id)}
                       disabled={isDeleting}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded"
+                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1 rounded"
                       style={{ color: "var(--text-tertiary)" }}
+                      aria-label="Delete memory"
                     >
                       <Trash2 size={12} />
                     </button>
@@ -244,10 +229,7 @@ export function MemoryPanel() {
                       {truncate(mem.user_message, 200)}
                     </p>
                   </div>
-                  <div
-                    className="pt-2 border-t"
-                    style={{ borderColor: "var(--border-subtle)" }}
-                  >
+                  <div className="pt-2 border-t" style={{ borderColor: "var(--border-subtle)" }}>
                     <span className="text-[10px] font-medium uppercase tracking-wide" style={{ color: "var(--text-tertiary)" }}>
                       Twin responded
                     </span>
@@ -257,11 +239,9 @@ export function MemoryPanel() {
                   </div>
                 </div>
 
-                {/* Importance score bar */}
+                {/* Importance bar */}
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
-                    Importance
-                  </span>
+                  <span className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>Importance</span>
                   <div className="flex-1 h-0.5 rounded-full" style={{ background: "var(--bg-tertiary)" }}>
                     <div
                       className="h-full rounded-full"
@@ -303,7 +283,7 @@ function MemoryEmpty({ hasMemories }: { hasMemories: boolean }) {
 
 function MemorySkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-4">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
       <div className="skeleton h-5 w-40 mb-2" />
       <div className="skeleton h-4 w-56 mb-6" />
       <div className="skeleton h-10 w-full rounded-xl mb-4" />

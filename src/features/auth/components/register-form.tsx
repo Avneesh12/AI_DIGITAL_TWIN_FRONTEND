@@ -22,6 +22,17 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const TEXT_FIELDS: {
+  name: "username" | "email";
+  label: string;
+  type: string;
+  placeholder: string;
+  autoComplete: string;
+}[] = [
+  { name: "username", label: "Username",  type: "text",  placeholder: "yourname",       autoComplete: "username" },
+  { name: "email",    label: "Email",     type: "email", placeholder: "you@example.com", autoComplete: "email" },
+];
+
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { register: registerUser, isLoading, error, clearError } = useAuthStore();
@@ -39,21 +50,16 @@ export function RegisterForm() {
       router.push("/dashboard/chat");
       toast.success("Welcome — your twin is ready to learn from you");
     } catch {
-      // error is already set in store
+      // error is set in store
     }
   };
-
-  const fields: { name: keyof FormValues; label: string; type: string; placeholder: string; autoComplete: string }[] = [
-    { name: "username", label: "Username",  type: "text",     placeholder: "yourname",       autoComplete: "username" },
-    { name: "email",    label: "Email",     type: "email",    placeholder: "you@example.com", autoComplete: "email" },
-  ];
 
   return (
     <div className="w-full max-w-sm mx-auto">
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-8">
         <div
-          className="flex items-center justify-center w-8 h-8 rounded-lg"
+          className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
           style={{ background: "var(--accent)" }}
         >
           <Sparkles size={15} style={{ color: "var(--accent-text)" }} />
@@ -71,7 +77,7 @@ export function RegisterForm() {
       </h1>
       <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
         Already have an account?{" "}
-        <Link href="/login" className="underline underline-offset-2" style={{ color: "var(--text-primary)" }}>
+        <Link href="/login" className="underline underline-offset-2 hover:opacity-70" style={{ color: "var(--text-primary)" }}>
           Sign in
         </Link>
       </p>
@@ -86,7 +92,7 @@ export function RegisterForm() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {fields.map(({ name, label, type, placeholder, autoComplete }) => (
+        {TEXT_FIELDS.map(({ name, label, type, placeholder, autoComplete }) => (
           <div key={name}>
             <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
               {label}
@@ -96,7 +102,7 @@ export function RegisterForm() {
               type={type}
               autoComplete={autoComplete}
               placeholder={placeholder}
-              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+              className="w-full px-3 py-3 rounded-xl text-sm outline-none"
               style={{
                 background: "var(--bg-secondary)",
                 border: `1px solid ${errors[name] ? "rgba(220,38,38,0.4)" : "var(--border-default)"}`,
@@ -120,20 +126,22 @@ export function RegisterForm() {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Min. 8 characters"
-              className="w-full px-3 py-2.5 pr-10 rounded-xl text-sm outline-none"
+              className="w-full px-3 py-3 pr-11 rounded-xl text-sm outline-none"
               style={{
                 background: "var(--bg-secondary)",
                 border: `1px solid ${errors.password ? "rgba(220,38,38,0.4)" : "var(--border-default)"}`,
                 color: "var(--text-primary)",
               }}
             />
+            {/* Full-height tap target */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
+              className="absolute right-0 top-0 h-full px-3 flex items-center"
               style={{ color: "var(--text-tertiary)" }}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
           {errors.password && (
@@ -145,7 +153,7 @@ export function RegisterForm() {
           type="submit"
           disabled={isLoading}
           className={cn(
-            "w-full py-2.5 rounded-xl text-sm font-semibold transition-all mt-2",
+            "w-full py-3 rounded-xl text-sm font-semibold transition-all mt-2",
             "disabled:opacity-60 disabled:cursor-not-allowed"
           )}
           style={{ background: "var(--text-primary)", color: "var(--bg-primary)" }}

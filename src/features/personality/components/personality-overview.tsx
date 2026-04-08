@@ -11,27 +11,27 @@ import { traitLabel, cn } from "@/lib/utils";
 import type { PersonalityProfile } from "@/types";
 
 const schema = z.object({
-  tone: z.string().optional(),
-  communication_style: z.string().optional(),
-  decision_style: z.string().optional(),
-  persona_summary: z.string().max(500).optional(),
-  values: z.string().optional(),    // comma-separated
-  interests: z.string().optional(), // comma-separated
-  openness: z.number().min(0).max(1),
-  conscientiousness: z.number().min(0).max(1),
-  extraversion: z.number().min(0).max(1),
-  agreeableness: z.number().min(0).max(1),
-  neuroticism: z.number().min(0).max(1),
+  tone:                 z.string().optional(),
+  communication_style:  z.string().optional(),
+  decision_style:       z.string().optional(),
+  persona_summary:      z.string().max(500).optional(),
+  values:               z.string().optional(),
+  interests:            z.string().optional(),
+  openness:             z.number().min(0).max(1),
+  conscientiousness:    z.number().min(0).max(1),
+  extraversion:         z.number().min(0).max(1),
+  agreeableness:        z.number().min(0).max(1),
+  neuroticism:          z.number().min(0).max(1),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 const BIG_FIVE = [
-  { key: "openness",         label: "Openness",          desc: "Curiosity, creativity, openness to new experiences" },
-  { key: "conscientiousness",label: "Conscientiousness",  desc: "Organization, dependability, self-discipline" },
-  { key: "extraversion",     label: "Extraversion",       desc: "Sociability, assertiveness, positive emotionality" },
-  { key: "agreeableness",    label: "Agreeableness",      desc: "Cooperation, trust, empathy" },
-  { key: "neuroticism",      label: "Emotional Sensitivity", desc: "Tendency toward negative emotions" },
+  { key: "openness",          label: "Openness",              desc: "Curiosity, creativity, openness to new experiences" },
+  { key: "conscientiousness", label: "Conscientiousness",     desc: "Organization, dependability, self-discipline" },
+  { key: "extraversion",      label: "Extraversion",          desc: "Sociability, assertiveness, positive emotionality" },
+  { key: "agreeableness",     label: "Agreeableness",         desc: "Cooperation, trust, empathy" },
+  { key: "neuroticism",       label: "Emotional Sensitivity", desc: "Tendency toward negative emotions" },
 ] as const;
 
 const TONE_OPTIONS     = ["casual", "formal", "witty", "direct", "warm", "analytical"];
@@ -51,7 +51,6 @@ export function PersonalityOverview() {
     },
   });
 
-  // Watch slider values for live display
   const traitValues = {
     openness:          watch("openness"),
     conscientiousness: watch("conscientiousness"),
@@ -64,7 +63,6 @@ export function PersonalityOverview() {
     personalityApi.get()
       .then((p) => {
         setProfile(p);
-        // Populate form
         setValue("tone", p.tone ?? "");
         setValue("communication_style", p.communication_style ?? "");
         setValue("decision_style", p.decision_style ?? "");
@@ -109,10 +107,10 @@ export function PersonalityOverview() {
   if (loading) return <PersonalitySkeleton />;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             Personality Profile
@@ -122,28 +120,23 @@ export function PersonalityOverview() {
           </p>
         </div>
 
-        {/* Confidence badge */}
         {profile && (
           <div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0"
             style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}
           >
             <TrendingUp size={11} />
-            {Math.round((profile.trait_confidence) * 100)}% confidence
+            {Math.round(profile.trait_confidence * 100)}% confidence
           </div>
         )}
       </div>
 
-      {/* AI-learned indicator */}
       {profile && profile.trait_confidence > 0.1 && (
         <div
-          className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm"
-          style={{
-            background: "var(--accent-light)",
-            border: "1px solid rgba(245,158,11,0.2)",
-          }}
+          className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-sm"
+          style={{ background: "var(--accent-light)", border: "1px solid rgba(245,158,11,0.2)" }}
         >
-          <Sparkles size={14} style={{ color: "var(--accent)" }} />
+          <Sparkles size={14} style={{ color: "var(--accent)", flexShrink: 0, marginTop: 2 }} />
           <p style={{ color: "var(--accent-text)" }}>
             Your twin has auto-updated this profile from your conversations.
             Review and adjust any values below.
@@ -151,12 +144,12 @@ export function PersonalityOverview() {
         </div>
       )}
 
-      {/* ── Persona Summary ───────────────────────────────────────────────── */}
+      {/* Persona Summary */}
       <Section title="Who You Are" description="A free-form description of your personality and outlook.">
         <textarea
           {...register("persona_summary")}
           rows={3}
-          placeholder="A pragmatic engineer who values clarity over consensus, tends to think out loud, and always ties decisions back to long-term outcomes…"
+          placeholder="A pragmatic engineer who values clarity over consensus…"
           className="w-full px-3 py-2.5 rounded-xl text-sm resize-none outline-none transition-colors"
           style={{
             background: "var(--bg-secondary)",
@@ -167,9 +160,10 @@ export function PersonalityOverview() {
         />
       </Section>
 
-      {/* ── Communication ─────────────────────────────────────────────────── */}
+      {/* Communication */}
       <Section title="Communication" description="How you express yourself and prefer to interact.">
-        <div className="grid grid-cols-2 gap-4">
+        {/* Stack on mobile, 2-col on sm+ */}
+        <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
           <Field label="Tone">
             <ChipSelect
               options={TONE_OPTIONS}
@@ -184,7 +178,7 @@ export function PersonalityOverview() {
               onChange={(v) => setValue("communication_style", v, { shouldDirty: true })}
             />
           </Field>
-          <Field label="Decision Style" className="col-span-2">
+          <Field label="Decision Style" className="sm:col-span-2">
             <ChipSelect
               options={DECISION_OPTIONS}
               value={watch("decision_style") ?? ""}
@@ -194,7 +188,7 @@ export function PersonalityOverview() {
         </div>
       </Section>
 
-      {/* ── Values & Interests ───────────────────────────────────────────── */}
+      {/* Values & Interests */}
       <Section title="Values & Interests" description="Comma-separated. Your twin uses these to color its responses.">
         <div className="space-y-3">
           <Field label="Core Values">
@@ -226,27 +220,27 @@ export function PersonalityOverview() {
         </div>
       </Section>
 
-      {/* ── Big Five Traits ───────────────────────────────────────────────── */}
+      {/* Big Five Traits */}
       <Section title="Big Five Personality Traits" description="These scores shape how your twin reasons and responds.">
         <div className="space-y-5">
           {BIG_FIVE.map(({ key, label, desc }) => {
             const value = traitValues[key];
             return (
               <div key={key}>
-                <div className="flex items-center justify-between mb-2">
-                  <div>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{label}</p>
                     <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
                   </div>
                   <span
-                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    className="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
                   >
                     {traitLabel(value ?? 0.5)}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] w-8 text-right" style={{ color: "var(--text-tertiary)" }}>Low</span>
+                  <span className="text-[10px] w-6 text-right flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>Low</span>
                   <input
                     type="range"
                     min="0"
@@ -256,9 +250,8 @@ export function PersonalityOverview() {
                     onChange={(e) => setValue(key, parseFloat(e.target.value), { shouldDirty: true })}
                     className="trait-slider flex-1"
                   />
-                  <span className="text-[10px] w-8" style={{ color: "var(--text-tertiary)" }}>High</span>
+                  <span className="text-[10px] w-6 flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>High</span>
                 </div>
-                {/* Visual bar */}
                 <div className="mt-1.5 h-0.5 rounded-full" style={{ background: "var(--bg-tertiary)" }}>
                   <div
                     className="h-full rounded-full transition-all duration-200"
@@ -271,8 +264,8 @@ export function PersonalityOverview() {
         </div>
       </Section>
 
-      {/* ── Save Button ───────────────────────────────────────────────────── */}
-      <div className="flex justify-end pb-8">
+      {/* Save */}
+      <div className="flex justify-end pb-6 sm:pb-8">
         <button
           type="submit"
           disabled={saving || !isDirty}
@@ -280,10 +273,7 @@ export function PersonalityOverview() {
             "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all",
             "disabled:opacity-40 disabled:cursor-not-allowed"
           )}
-          style={{
-            background: "var(--accent)",
-            color: "var(--accent-text)",
-          }}
+          style={{ background: "var(--accent)", color: "var(--accent-text)" }}
         >
           <Save size={14} />
           {saving ? "Saving…" : "Save Profile"}
@@ -293,14 +283,12 @@ export function PersonalityOverview() {
   );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
 function Section({ title, description, children }: {
   title: string; description: string; children: React.ReactNode;
 }) {
   return (
     <div
-      className="rounded-2xl p-5 border"
+      className="rounded-2xl p-4 sm:p-5 border"
       style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
     >
       <div className="mb-4">
@@ -354,7 +342,7 @@ function ChipSelect({ options, value, onChange }: {
 
 function PersonalitySkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       {[200, 160, 280].map((h, i) => (
         <div key={i} className="rounded-2xl border p-5" style={{ borderColor: "var(--border-subtle)" }}>
           <div className="skeleton h-4 w-32 mb-2" />

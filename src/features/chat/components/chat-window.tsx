@@ -6,28 +6,23 @@ import { useAuthStore } from "@/store/auth-store";
 import { ChatMessage } from "./chat-message";
 import { ChatComposer } from "./chat-composer";
 import { ChatEmpty } from "./chat-empty";
-import { cn } from "@/lib/utils";
 
 export function ChatWindow() {
   const { messages, isLoading, error, loadHistory, clearError } = useChatStore();
   const { user } = useAuthStore();
   const bottomRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
-  // Load history on mount, then jump instantly to bottom
   useEffect(() => {
     loadHistory().then(() => setHistoryLoaded(true));
   }, []);
 
-  // After history loads: jump instantly (no animation) so user sees latest messages
   useEffect(() => {
     if (historyLoaded) {
       bottomRef.current?.scrollIntoView({ behavior: "auto" });
     }
   }, [historyLoaded]);
 
-  // After each new sent/received message: smooth scroll to bottom
   useEffect(() => {
     if (historyLoaded) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,16 +31,12 @@ export function ChatWindow() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* ── Message Area ─────────────────────────────────────────────────── */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto"
-        style={{ paddingBottom: "0" }}
-      >
+      {/* Message Area */}
+      <div className="flex-1 overflow-y-auto">
         {messages.length === 0 && !isLoading ? (
           <ChatEmpty username={user?.username} />
         ) : (
-          <div className="max-w-3xl mx-auto px-6 py-8 space-y-1">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-1">
             {messages.map((msg, i) => (
               <ChatMessage
                 key={msg.id}
@@ -55,7 +46,6 @@ export function ChatWindow() {
               />
             ))}
 
-            {/* Error state */}
             {error && (
               <div
                 className="flex items-center justify-between px-4 py-3 rounded-lg text-sm animate-fade-in"
@@ -68,7 +58,7 @@ export function ChatWindow() {
                 <span>{error}</span>
                 <button
                   onClick={clearError}
-                  className="text-xs underline underline-offset-2 ml-4 shrink-0"
+                  className="text-xs underline underline-offset-2 ml-4 flex-shrink-0"
                   style={{ color: "var(--text-tertiary)" }}
                 >
                   Dismiss
@@ -81,15 +71,15 @@ export function ChatWindow() {
         )}
       </div>
 
-      {/* ── Composer ─────────────────────────────────────────────────────── */}
+      {/* Composer */}
       <div
-        className="border-t"
+        className="border-t flex-shrink-0"
         style={{
           background: "var(--bg-elevated)",
           borderColor: "var(--border-subtle)",
         }}
       >
-        <div className="max-w-3xl mx-auto px-6 py-4">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <ChatComposer />
         </div>
       </div>

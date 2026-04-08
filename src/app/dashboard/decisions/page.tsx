@@ -1,6 +1,5 @@
 "use client";
 
-import type { Metadata } from "next";
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api/client";
 import { formatDate, truncate } from "@/lib/utils";
@@ -21,8 +20,8 @@ export default function DecisionsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-4">
-        {[1,2,3].map(i => (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
+        {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-2xl border p-4" style={{ borderColor: "var(--border-subtle)" }}>
             <div className="skeleton h-4 w-48 mb-2" />
             <div className="skeleton h-3 w-full mb-1" />
@@ -34,7 +33,7 @@ export default function DecisionsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       <div>
         <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Decision Log</h2>
         <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
@@ -51,18 +50,19 @@ export default function DecisionsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 pb-8">
           {decisions.map((d) => (
             <div
               key={d.id}
-              className="rounded-2xl border p-5"
+              className="rounded-2xl border p-4 sm:p-5"
               style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
             >
-              <div className="flex items-start justify-between gap-4 mb-3">
+              {/* Context + date — stack on mobile, row on sm+ */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4 mb-3">
                 <p className="text-sm font-medium leading-snug" style={{ color: "var(--text-primary)" }}>
                   {truncate(d.context, 120)}
                 </p>
-                <span className="text-[11px] shrink-0" style={{ color: "var(--text-tertiary)" }}>
+                <span className="text-[11px] flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>
                   {formatDate(d.created_at)}
                 </span>
               </div>
@@ -71,7 +71,10 @@ export default function DecisionsPage() {
                 className="px-3 py-2 rounded-xl text-sm mb-3"
                 style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}
               >
-                <span className="text-[10px] font-medium uppercase tracking-wide block mb-0.5" style={{ color: "var(--accent)" }}>
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wide block mb-0.5"
+                  style={{ color: "var(--accent)" }}
+                >
                   Chosen
                 </span>
                 {d.chosen_option}
@@ -84,7 +87,10 @@ export default function DecisionsPage() {
               )}
 
               {d.outcome && (
-                <div className="mt-3 pt-3 border-t text-sm" style={{ borderColor: "var(--border-subtle)", color: "var(--text-tertiary)" }}>
+                <div
+                  className="mt-3 pt-3 border-t text-sm"
+                  style={{ borderColor: "var(--border-subtle)", color: "var(--text-tertiary)" }}
+                >
                   <span className="font-medium" style={{ color: "var(--text-secondary)" }}>Outcome: </span>
                   {d.outcome}
                 </div>

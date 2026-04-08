@@ -21,7 +21,6 @@ export function ChatComposer() {
 
   const hasMessages = messages.length > 0;
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -29,7 +28,6 @@ export function ChatComposer() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [value]);
 
-  // Focus on mount
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
@@ -64,28 +62,18 @@ export function ChatComposer() {
 
   return (
     <div className="space-y-3">
-      {/* Suggested prompts — only shown when no messages yet */}
+      {/* Suggested prompts */}
       {!hasMessages && showSuggestions && (
         <div className="flex flex-wrap gap-2 animate-fade-in">
           {SUGGESTED_PROMPTS.map((prompt) => (
             <button
               key={prompt}
               onClick={() => handleSuggestion(prompt)}
-              className="text-xs px-3 py-1.5 rounded-full border transition-all"
+              className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--accent)] hover:text-[var(--accent-text)]"
               style={{
                 borderColor: "var(--border-default)",
                 color: "var(--text-secondary)",
                 background: "var(--bg-secondary)",
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.borderColor = "var(--accent)";
-                el.style.color = "var(--accent-text)";
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.borderColor = "var(--border-default)";
-                el.style.color = "var(--text-secondary)";
               }}
             >
               {prompt}
@@ -96,18 +84,10 @@ export function ChatComposer() {
 
       {/* Input area */}
       <div
-        className="flex items-end gap-3 px-4 py-3 rounded-2xl border transition-all"
+        className="flex items-end gap-3 px-4 py-3 rounded-2xl border transition-colors focus-within:border-[var(--border-strong)]"
         style={{
           background: "var(--bg-secondary)",
           borderColor: "var(--border-default)",
-        }}
-        onFocus={(e) => {
-          (e.currentTarget as HTMLElement).style.borderColor = "var(--border-strong)";
-        }}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) {
-            (e.currentTarget as HTMLElement).style.borderColor = "var(--border-default)";
-          }
         }}
       >
         <textarea
@@ -127,12 +107,11 @@ export function ChatComposer() {
           }}
         />
 
-        {/* Send / Stop button */}
         <button
           onClick={isLoading ? undefined : handleSend}
           disabled={!isLoading && !value.trim()}
           className={cn(
-            "flex items-center justify-center w-8 h-8 rounded-xl transition-all shrink-0",
+            "flex items-center justify-center w-8 h-8 rounded-xl transition-all flex-shrink-0",
             "disabled:opacity-30 disabled:cursor-not-allowed"
           )}
           style={{
@@ -144,8 +123,8 @@ export function ChatComposer() {
         </button>
       </div>
 
-      {/* Footer hint */}
-      <p className="text-center text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+      {/* Footer hint — hidden on very small screens */}
+      <p className="hidden sm:block text-center text-[11px]" style={{ color: "var(--text-tertiary)" }}>
         Shift+Enter for new line · Your twin speaks as you, not for you
       </p>
     </div>

@@ -20,7 +20,6 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const router = useRouter();
-  const { startNewSession } = useChatStore();
 
   useEffect(() => {
     chatApi.getHistory(100)
@@ -29,13 +28,11 @@ export default function HistoryPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Group messages into pseudo-sessions by date proximity
   const grouped = useMemo(() => {
     const filtered = query
       ? items.filter((i) => i.content.toLowerCase().includes(query.toLowerCase()))
       : items;
 
-    // Group by date (day)
     const groups: Record<string, HistoryItem[]> = {};
     filtered.forEach((item) => {
       const day = new Date(item.created_at).toDateString();
@@ -45,13 +42,11 @@ export default function HistoryPage() {
     return groups;
   }, [items, query]);
 
-  const handleContinue = () => {
-    router.push("/dashboard/chat");
-  };
+  const handleContinue = () => router.push("/dashboard/chat");
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
         <div className="skeleton h-10 w-full rounded-xl mb-6" />
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="rounded-2xl border p-4" style={{ borderColor: "var(--border-subtle)" }}>
@@ -65,9 +60,9 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             Conversation History
@@ -78,7 +73,7 @@ export default function HistoryPage() {
         </div>
         <button
           onClick={handleContinue}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex-shrink-0 hover:bg-[var(--bg-tertiary)]"
           style={{
             background: "var(--bg-secondary)",
             borderColor: "var(--border-default)",
@@ -86,7 +81,8 @@ export default function HistoryPage() {
           }}
         >
           <MessageSquare size={12} />
-          Continue chatting
+          <span className="hidden sm:inline">Continue chatting</span>
+          <span className="sm:hidden">Chat</span>
         </button>
       </div>
 
@@ -105,7 +101,7 @@ export default function HistoryPage() {
           style={{ color: "var(--text-primary)" }}
         />
         {query && (
-          <button onClick={() => setQuery("")} className="text-xs" style={{ color: "var(--text-tertiary)" }}>✕</button>
+          <button onClick={() => setQuery("")} className="text-xs px-1" style={{ color: "var(--text-tertiary)" }}>✕</button>
         )}
       </div>
 
@@ -133,24 +129,18 @@ export default function HistoryPage() {
               </p>
               <div className="space-y-2">
                 {dayItems.map((item) => (
-                  <div
+                  <button
                     key={item.id}
-                    className="group flex items-start gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all"
+                    className="group w-full flex items-start gap-3 px-4 py-3 rounded-xl border transition-colors text-left hover:border-[var(--border-default)]"
                     style={{
                       background: "var(--bg-elevated)",
                       borderColor: "var(--border-subtle)",
                     }}
                     onClick={handleContinue}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "var(--border-default)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
-                    }}
                   >
                     {/* Role indicator */}
                     <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 mt-0.5"
                       style={
                         item.role === "user"
                           ? { background: "var(--bg-tertiary)", color: "var(--text-secondary)" }
@@ -160,7 +150,7 @@ export default function HistoryPage() {
                       {item.role === "user" ? "U" : "T"}
                     </div>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 text-left">
                       <p className="text-sm leading-relaxed truncate" style={{ color: "var(--text-primary)" }}>
                         {truncate(item.content, 120)}
                       </p>
@@ -171,10 +161,10 @@ export default function HistoryPage() {
 
                     <ChevronRight
                       size={14}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1"
                       style={{ color: "var(--text-tertiary)" }}
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
